@@ -1,0 +1,20 @@
+{
+  "name": "shellus-out/untitled",
+  "require-dev": {
+    "symfony/dom-crawler": "^3.1",
+    "guzzle/guzzle": "^3.9"
+  },
+  "authors": [
+    {
+      "name": "shellus",
+      "email": "shellus@endaosi.com"
+    }
+  ],
+  "autoload": {
+    "psr-4": {
+      "App\\": "app/",
+      "Sh\\": "src/"
+    }
+  },
+  "require": {}
+}
