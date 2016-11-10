@@ -74,10 +74,15 @@ class Stateful
             return $a;
         }
     }
+    public function __toString()
+    {
+        return json_encode($this -> data);
+    }
 }
 
 class ORM extends Stateful
 {
+
     /** @var  $db DB */
     static $db, $table, $f, $relationship, $b, $master_key = 'id';
 
@@ -87,9 +92,14 @@ class ORM extends Stateful
             if (is_numeric($data)) {
                 $this->data[$this::$master_key] = $data;
             } else {
-                foreach ($data as $key => $item) {
-                    $this->$key = $item;
+                if(!property_exists($data, $this::$master_key)){
+                    foreach ($data as $key => $item) {
+                        $this->$key = $item;
+                    }
+                }else{
+                    $this->data = (array)$data;
                 }
+
             }
         }
     }
@@ -101,9 +111,9 @@ class ORM extends Stateful
             $k = $this::$master_key;
 
             if ($this->load = empty($this->data[$k])) {
-                $this->$k = $this::$db->insert($this::$table, $data);
+                $this->$k = $this::$db->insert($this::getTableName(), $data);
             } else {
-                $this::$db->update($this::$table, $data, array($k => $this->$k));
+                $this::$db->update($this::getTableName(), $data, array($k => $this->$k));
             }
         }
         return $this;
@@ -135,16 +145,22 @@ class ORM extends Stateful
 
     static function get($where = 0, $limit = 0, $offset = 0, $sort = 0, $column = 0, $f = 'fetch')
     {
-        list($q, $p) = static::$db->select($column, static::$table, $where, $limit, $offset, $sort);
+        list($q, $p) = static::$db->select($column, static::getTableName(), $where, $limit, $offset, $sort);
         $result = static::$db->$f($q, $p);
         if ($f{0} == 'f') {
             foreach ($result as &$v) $v = new static($v);
         }
-        return $result;
+        return new \Sh\Collection($result);
     }
 
     static function count($where = 0)
     {
-        return static::$db->count(static::$table, $where);
+        return static::$db->count(static::getTableName(), $where);
+    }
+    static function getTableName(){
+
+        $table = pathinfo(strtolower(array_pop(explode('\\', static::class))), PATHINFO_FILENAME);
+
+        return static::$table?:$table;
     }
 }

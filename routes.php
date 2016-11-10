@@ -7,6 +7,6 @@
  */
 
 \Sh\Router::get('/^\/$/', \App\Controller\Index::class . '@index');
-
+\Sh\Router::get('/^\/new$/', \App\Controller\Index::class . '@new_');
 
 \Sh\Router::get('/^\/test$/', \App\Controller\Index::class . '@test');

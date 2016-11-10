@@ -15,3 +15,9 @@ function config($key)
 {
     return \Sh\Config::get($key);
 }
+
+
+function dd($var){
+    var_dump($var);
+    die();
+}

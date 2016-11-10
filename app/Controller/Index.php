@@ -1,5 +1,6 @@
 <?php namespace App\Controller;
 
+use App\Model\Navigations;
 use App\Model\User;
 use Sh\View;
 
@@ -13,7 +14,8 @@ class Index
 {
     public function index()
     {
-        return View::load('index')->set('name', 'abc')->render();
+        $navigations = Navigations::get();
+        return View::load('index') -> set('name', '123') -> set('navigations', $navigations)->render();
     }
 
     public function test()
@@ -24,7 +26,13 @@ class Index
         ]);
         $user->save();
 
-        var_dump($user->values());
+        var_dump((string)$user);
         die();
+    }
+
+    public function new_()
+    {
+        $navigations = Navigations::get();
+        return $navigations;
     }
 }
