@@ -1,4 +1,5 @@
 <?php namespace App\Controller;
+use App\Model\User;
 
 /**
  * Created by PhpStorm.
@@ -12,6 +13,12 @@ class Index
         return view('index');
     }
     public function test(){
-        return 'test Page';
+        $user = new User([
+            'name' => 'new user',
+            'nick' => '新用户1'
+        ]);
+        $user -> save();
+
+        var_dump($user -> values());die();
     }
 }

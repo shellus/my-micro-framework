@@ -15,6 +15,8 @@ require _APP_ROOT_PATH_ . '/vendor/autoload.php';
 
 \Sh\Config::load_config(_APP_ROOT_PATH_ . '/config');
 
+\Sh\ORM::$db = new \Sh\DB(config('app.database'));
+
 \Sh\View::load_config(_APP_ROOT_PATH_ . '/app/view/');
 
 require _APP_ROOT_PATH_ . '/app/routes.php';
