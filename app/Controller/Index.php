@@ -11,4 +11,7 @@ class Index
     public function index(){
         return view('index');
     }
+    public function test(){
+        return 'test Page';
+    }
 }

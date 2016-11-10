@@ -1,9 +1,5 @@
 {
   "name": "shellus-out/untitled",
-  "require-dev": {
-    "symfony/dom-crawler": "^3.1",
-    "guzzle/guzzle": "^3.9"
-  },
   "authors": [
     {
       "name": "shellus",
@@ -14,7 +10,10 @@
     "psr-4": {
       "App\\": "app/",
       "Sh\\": "src/"
-    }
+    },
+    "files": [
+      "src/functions.php"
+    ]
   },
   "require": {}
 }
