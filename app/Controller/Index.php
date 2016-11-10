@@ -1,5 +1,7 @@
 <?php namespace App\Controller;
+
 use App\Model\User;
+use Sh\View;
 
 /**
  * Created by PhpStorm.
@@ -9,16 +11,20 @@ use App\Model\User;
  */
 class Index
 {
-    public function index(){
-        return view('index');
+    public function index()
+    {
+        return View::load('index')->set('name', 'abc')->render();
     }
-    public function test(){
+
+    public function test()
+    {
         $user = new User([
             'name' => 'new user',
             'nick' => '新用户1'
         ]);
-        $user -> save();
+        $user->save();
 
-        var_dump($user -> values());die();
+        var_dump($user->values());
+        die();
     }
 }

@@ -12,25 +12,56 @@ namespace Sh;
 class View
 {
     static protected $path;
+    protected $vars = [];
+    protected $view = '';
 
 
-    static public function load_config($path){
+    /**
+     * @param $view
+     * @return $this
+     */
+    public function view($view)
+    {
+        $this->view = $view;
+        return $this;
+    }
+
+    public function set($key, $value)
+    {
+        $this->vars[$key] = $value;
+        return $this;
+    }
+
+    public function vars($vars){
+        $this -> vars = $vars;
+        return $this;
+    }
+
+    /**
+     * @param $view
+     * @return $this
+     */
+    static public function load($view)
+    {
+        return (new static())->view($view);
+    }
+
+    static public function load_config($path)
+    {
 //        static::$path = \Sh\Config::get('app.view_path');
         static::$path = $path;
     }
 
-    static public function render($view){
+    public function render()
+    {
         ob_start();
-        require static::$path . $view . '.php';
-        $body = ob_get_clean();
+        extract($this->vars);
 
-        if(empty($title)){
-            $title = '';
+        require static::$path . $this->view . '.php';
+
+        if (!empty($layout)) {
+            return static::load($layout)->vars($this -> vars) -> set('body', ob_get_clean())->render();
         }
-        ob_start();
-        require static::$path . 'layout' . '.php';
-        $html = ob_get_clean();
-
-        return $html;
+        return ob_get_clean();
     }
 }
