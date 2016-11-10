@@ -92,7 +92,7 @@ class ORM extends Stateful
             if (is_numeric($data)) {
                 $this->data[$this::$master_key] = $data;
             } else {
-                if(!property_exists($data, $this::$master_key)){
+                if(empty($data[$this::$master_key])){
                     foreach ($data as $key => $item) {
                         $this->$key = $item;
                     }
@@ -148,7 +148,7 @@ class ORM extends Stateful
         list($q, $p) = static::$db->select($column, static::getTableName(), $where, $limit, $offset, $sort);
         $result = static::$db->$f($q, $p);
         if ($f{0} == 'f') {
-            foreach ($result as &$v) $v = new static($v);
+            foreach ($result as &$v) $v = new static((array)$v);
         }
         return new \Sh\Collection($result);
     }
