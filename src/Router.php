@@ -26,10 +26,10 @@ class Router
 
     static public function d($path)
     {
-        foreach (self::$routers as $route){
-            if(preg_match($route['pattern'], $path) !== 0){
-                list($c, $a) = explode('@',$route['action']);
-                $html = (new $c) -> $a();
+        foreach (self::$routers as $route) {
+            if (preg_match($route['pattern'], $path) !== 0) {
+                list($c, $a) = explode('@', $route['action']);
+                $html = (new $c)->$a();
                 return $html;
             }
         }

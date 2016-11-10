@@ -84,18 +84,15 @@ class ORM extends Stateful
     function __construct($data = null)
     {
         if ($data) {
-            if (is_numeric($data))
-            {
+            if (is_numeric($data)) {
                 $this->data[$this::$master_key] = $data;
-            }
-            else {
-                foreach ($data as $key => $item){
-                    $this -> $key = $item;
+            } else {
+                foreach ($data as $key => $item) {
+                    $this->$key = $item;
                 }
             }
         }
     }
-
 
 
     function save()
@@ -103,11 +100,9 @@ class ORM extends Stateful
         if ($data = $this->changes()) {
             $k = $this::$master_key;
 
-            if($this->load = empty($this->data[$k]))
-            {
+            if ($this->load = empty($this->data[$k])) {
                 $this->$k = $this::$db->insert($this::$table, $data);
-            }else
-            {
+            } else {
                 $this::$db->update($this::$table, $data, array($k => $this->$k));
             }
         }
@@ -116,16 +111,16 @@ class ORM extends Stateful
 
     static public function find($id)
     {
-        return ( new static([static::$master_key => $id]) ) -> load();
+        return (new static([static::$master_key => $id]))->load();
     }
 
     function load()
     {
         // 数据已经载入
-        if (!$this->load){
+        if (!$this->load) {
             $k = $this::$master_key;
 
-            if (empty($this->data[$k])){
+            if (empty($this->data[$k])) {
                 throw new \Exception('没有主键，不能加载数据');
             }
 

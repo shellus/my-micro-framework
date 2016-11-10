@@ -6,9 +6,12 @@
  * Time: 10:14
  */
 
-function view($view){
+function view($view)
+{
     return \Sh\View::render($view);
 }
-function config($key){
+
+function config($key)
+{
     return \Sh\Config::get($key);
 }

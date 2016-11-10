@@ -1,2 +1,3 @@
-<?php $title = '首页';?>
-<h1>我是body</h1>
+<?php $this -> set('title', '首页');?>
+<?php $layout = 'layout';?>
+<h1>我是<?=$name?></h1>

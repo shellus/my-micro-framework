@@ -13,13 +13,13 @@ class Config
 {
     static public $config;
 
-    static public function load_config($path){
+    static public function load_config($path)
+    {
         $dir = @ dir($path);
 
-        while (($file = $dir->read())!==false)
-        {
-            $path = $dir -> path . '/' . $file;
-            if(!is_dir($path) AND ($file != ".") AND ($file != "..")) {
+        while (($file = $dir->read()) !== false) {
+            $path = $dir->path . '/' . $file;
+            if (!is_dir($path) AND ($file != ".") AND ($file != "..")) {
                 \Sh\Config::set(pathinfo($path, PATHINFO_FILENAME), (require $path));
             }
         }
@@ -30,15 +30,16 @@ class Config
     {
         static::$config[$key] = $value;
     }
+
     static public function get($key = null)
     {
         $s = static::$config;
         $arr = explode('.', $key);
-        foreach ($arr as $item){
+        foreach ($arr as $item) {
             $s = $s[$item];
         }
 
-        if($key === null){
+        if ($key === null) {
             return static::$config;
         }
 

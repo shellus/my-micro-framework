@@ -61,12 +61,9 @@ class Sql
         $a = $s = array();
         if ($where) {
             foreach ($where as $c => $v) {
-                if (is_int($c))
-                {
+                if (is_int($c)) {
                     $s[] = $v;
-                }
-                else
-                {
+                } else {
                     $s[] = "\"$c\"=?";
                     $a[] = $v;
                 }
@@ -77,6 +74,7 @@ class Sql
 }
 
 use PDO;
+
 class DB extends Sql
 {
     public $pdo, $i = '`';

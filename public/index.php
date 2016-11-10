@@ -12,7 +12,6 @@ define('_APP_ROOT_PATH_', __DIR__ . DIRECTORY_SEPARATOR . '..');
 require _APP_ROOT_PATH_ . '/vendor/autoload.php';
 
 
-
 \Sh\Config::load_config(_APP_ROOT_PATH_ . '/config');
 
 \Sh\ORM::$db = new \Sh\DB(config('app.database'));
