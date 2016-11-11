@@ -16,8 +16,7 @@ class Index
 {
     public function index()
     {
-        $navigations = Navigations::get();
-        return View::load('index') -> set('name', '123') -> set('navigations', $navigations)->render();
+        return View::load('index') -> set('name', '123') -> render();
     }
 
     public function test()

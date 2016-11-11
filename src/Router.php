@@ -14,6 +14,10 @@ class Router
     {
         return static::router($pattern, $action, "GET");
     }
+    static public function post($pattern, $action)
+    {
+        return static::router($pattern, $action, "POST");
+    }
 
     static public function router($pattern, $action, $method)
     {
@@ -24,10 +28,10 @@ class Router
         ];
     }
 
-    static public function d($path)
+    static public function d()
     {
         foreach (self::$routers as $route) {
-            if (preg_match($route['pattern'], $path) !== 0) {
+            if (preg_match($route['pattern'], $path) !== 0 && $route['method'] === ) {
                 list($c, $a) = explode('@', $route['action']);
                 $html = (new $c)->$a();
                 return $html;

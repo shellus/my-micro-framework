@@ -6,9 +6,9 @@
  * Time: 10:14
  */
 
-function view($view)
+function view($view, $vars = [])
 {
-    return \Sh\View::render($view);
+    return \Sh\View::load($view) -> vars($vars)->render();
 }
 
 function config($key)

@@ -9,7 +9,7 @@
 return [
     'view_path' => _APP_ROOT_PATH_ . '/app/view/',
     'database' => [
-        'dsn' => 'mysql:host=127.0.0.1;port=3306;dbname=test',
+        'dsn' => 'mysql:host=127.0.0.1;port=3306;dbname=draw',
         'user' => 'root',
         'pass' => '',
         'args' => array(

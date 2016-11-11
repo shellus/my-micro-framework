@@ -17,10 +17,9 @@ define('_APP_ROOT_PATH_', __DIR__ . DIRECTORY_SEPARATOR . '..');
 
 \Sh\View::load_config(__DIR__ . '/../view/');
 
+\Sh\View::globalVar('navigations',  \App\Model\Navigations::get());
+
 require __DIR__ . '/../routes.php';
 
-$uri = array_key_exists('REQUEST_URI', $_SERVER) ? $_SERVER['REQUEST_URI'] : '/';
-
-$queryString = parse_url($uri, PHP_URL_QUERY);
-$path = parse_url($uri, PHP_URL_PATH);
+\Sh\Request::createFromWEB();
 

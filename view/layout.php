@@ -13,12 +13,7 @@
 <body>
 <?php require 'nav.php'?>
 <div class="container">
-    <div class="row">
-        <div class="col-md-12">
-            <?=$body?>
-        </div>
-    </div>
-
+    <?=$body?>
 </div>
 
 </body>

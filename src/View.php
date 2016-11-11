@@ -12,8 +12,20 @@ namespace Sh;
 class View
 {
     static protected $path;
+    static $globalVars = [];
     protected $vars = [];
     protected $view = '';
+
+    /**
+     * @param $key
+     * @param $value
+     * @return self
+     */
+    public static function globalVar($key, $value)
+    {
+        self::$globalVars[$key] = $value;
+        return self::class;
+    }
 
 
     /**
@@ -56,7 +68,7 @@ class View
     {
         ob_start();
         extract($this->vars);
-
+        extract(static::$globalVars);
         require static::$path . $this->view . '.php';
 
         if (!empty($layout)) {
