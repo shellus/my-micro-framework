@@ -131,6 +131,12 @@ class Sql
         $this->table = $table;
         return $this;
     }
+
+    public function column($column)
+    {
+        $this->column = $column;
+        return $this;
+    }
 }
 
 use PDO;
@@ -157,7 +163,7 @@ class DB extends Sql
 
     function select()
     {
-        return $this -> parseSelect() -> query() -> fetchAll(PDO::FETCH_OBJ);
+        return $this -> parseSelect() -> query() -> fetchAll(PDO::FETCH_ASSOC);
     }
     function delete()
     {

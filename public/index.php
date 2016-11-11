@@ -6,7 +6,7 @@
  * Time: 17:27
  */
 
-require __DIR__ . '../app/bootstrap.php';
+require __DIR__ . '/../app/bootstrap.php';
 
 $response = \Sh\Router::d($path);
 

@@ -28,14 +28,8 @@ class Index
             'href' => 'http://www.baidu.com',
             'icon' => '',
         ]));
+        dump(ORM::$db -> table('navigations') -> column('id') -> where([['name','=','新链接']]) -> select());
 
-        dump(ORM::$db -> table('navigations') -> where([['name','=','新链接']]) -> select());
-
-        dump(ORM::$db -> table('navigations') ->where([['name','=','新链接']]) -> update(['name' => '新链接_new']) );
-
-        dump(ORM::$db -> table('navigations') -> where([['name','=','新链接_new']]) -> delete());
-
-        dump(Navigations::get());
     }
 
     public function new_()

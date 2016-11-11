@@ -20,6 +20,11 @@ class Collection implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonS
         $this->items = $items;
     }
 
+    public function toArray()
+    {
+        return $this -> jsonSerialize();
+    }
+
     public function first()
     {
         foreach ($this->items as $item) {
@@ -27,10 +32,11 @@ class Collection implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonS
         }
         return null;
     }
+
     /**
      * Determine if an item exists at an offset.
      *
-     * @param  mixed  $key
+     * @param  mixed $key
      * @return bool
      */
     public function offsetExists($key)
@@ -41,7 +47,7 @@ class Collection implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonS
     /**
      * Get an item at a given offset.
      *
-     * @param  mixed  $key
+     * @param  mixed $key
      * @return mixed
      */
     public function offsetGet($key)
@@ -52,8 +58,8 @@ class Collection implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonS
     /**
      * Set the item at a given offset.
      *
-     * @param  mixed  $key
-     * @param  mixed  $value
+     * @param  mixed $key
+     * @param  mixed $value
      * @return void
      */
     public function offsetSet($key, $value)
@@ -68,7 +74,7 @@ class Collection implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonS
     /**
      * Unset the item at a given offset.
      *
-     * @param  string  $key
+     * @param  string $key
      * @return void
      */
     public function offsetUnset($key)
@@ -113,12 +119,13 @@ class Collection implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonS
             if ($value instanceof \JsonSerializable) {
                 return $value->jsonSerialize();
             } elseif ($value instanceof ORM) {
-                return $value -> values();
+                return $value->values();
             } else {
                 return $value;
             }
         }, $this->items);
     }
+
     /**
      * Convert the collection to its string representation.
      *
@@ -132,7 +139,7 @@ class Collection implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonS
     /**
      * Get the collection of items as JSON.
      *
-     * @param  int  $options
+     * @param  int $options
      * @return string
      */
     public function toJson($options = 0)

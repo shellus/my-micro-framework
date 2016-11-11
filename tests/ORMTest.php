@@ -44,7 +44,7 @@ class ORMTest extends \PHPUnit_Framework_TestCase
         $this->assertGreaterThan(0, count($m), '查询数量错误');
 
         foreach ($m as $item){
-            $this -> assertAttributeNotEmpty('id', $item, '查询到的数据错误');
+            $this -> assertNotEmpty($item['id'], '查询到的数据错误');
         }
     }
 
