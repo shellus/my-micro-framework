@@ -170,7 +170,7 @@ class ORM extends Stateful
 
     static function get($where = [])
     {
-        $result = static::$db -> table(static::getTableName()) -> where($where) ->get();
+        $result = static::$db -> table(static::getTableName()) -> where($where) ->select();
         foreach ($result as &$v) $v = new static((array)$v);
 
         return new Collection($result);
@@ -182,7 +182,7 @@ class ORM extends Stateful
      */
     static public function find($id)
     {
-        return static::get([static::$master_key => $id]) -> first();
+        return static::get([[static::$master_key, '=', $id]]) -> first();
     }
 
     static function count($where = 0)

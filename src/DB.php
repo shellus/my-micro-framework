@@ -14,7 +14,9 @@ class Sql
 
     protected $column = '*';
     protected $table = '';
-    protected $where = [];
+
+    /** @var array $wheres 多组条件，每组中可and or */
+    protected $wheres = [];
     protected $parameters = [];
     protected $limit = 0;
     protected $offset = 0;
@@ -22,59 +24,99 @@ class Sql
     protected $sql = '';
 
 
-    function parseSql()
+    function parseSelect()
     {
-        $q = "SELECT {$this -> column} FROM `{$this ->table}`";
-
-        if ($this -> where) $q .= " WHERE {$this -> where}";
-        if ($this -> sort)  $q .= " ORDER BY {$this -> sort}";
-        if ($this -> limit) $q .= " LIMIT {$this -> offset},{$this -> limit}";
-        $this -> sql = $q;
+        $this -> sql = "SELECT {$this -> column} FROM `{$this ->table}`";
+        $this -> parseAppendFilter();
+        return $this;
+    }
+    function parseDelete()
+    {
+        $this -> sql = "DELETE FROM {$this -> table}";
+        $this -> parseAppendFilter();
+        return $this;
+    }
+    function parseInsert($data)
+    {
+        $this -> sql = "INSERT INTO {$this -> table} (`" . implode('`,`', array_keys($data)) . '`) VALUES (' . rtrim(str_repeat('?,', count($data)), ',') . ')';
+        $this -> parameters = array_values($data);
         return $this;
     }
 
-//
-//    function delete($table, $where = 0)
-//    {
-//        $q = "DELETE FROM $table";
-//        list($where, $p) = $this->where($where);
-//        if ($where) $q .= " WHERE $where";
-//        return ($s = $this->query($q, $p)) ? $s->rowCount() : 0;
-//    }
-//    function count($table, $where = 0)
-//    {
-//        list($q, $p) = $this->select('COUNT(*)', $table, $where);
-//        return $this->column($q, $p);
-//    }
-//
-//    function insert($table, $data)
-//    {
-//        $q = "INSERT INTO $table (\"" . implode('","', array_keys($data)) . '")VALUES(' . rtrim(str_repeat('?,', count($data)), ',') . ')';
-//        return $this->query($q, array_values($data)) ? $this->pdo->lastInsertId() : 0;
-//    }
-//
-//    function update($table, $data, $where = NULL)
-//    {
-//        $q = "UPDATE $table SET \"" . implode('"=?,"', array_keys($data)) . '"=? WHERE ';
-//        list($a, $b) = $this->where($where);
-//        return (($s = $this->query($q . $a, array_merge(array_values($data), $b))) ? $s->rowCount() : NULL);
-//    }
-
-    function where($where = [])
+    function parseUpdate($data)
     {
-        $a = $s = array();
-        if ($where) {
-            foreach ($where as $c => $v) {
-                if (is_int($c)) {
-                    $s[] = $v;
-                } else {
-                    $s[] = "`$c`=?";
-                    $a[] = $v;
+        $this -> sql = "UPDATE {$this -> table} SET `" . implode('` = ?,`', array_keys($data)) . '` = ?';
+        $this -> parameters = array_values($data);
+        $this -> parseAppendFilter();
+        return $this;
+    }
+
+
+
+    function parseAppendFilter(){
+        if ($this -> wheres) $this -> sql .= " WHERE {$this -> parseWhere()}";
+        if ($this -> sort)  $this -> sql .= " ORDER BY {$this -> sort}";
+        if ($this -> limit) $this -> sql .= " LIMIT {$this -> offset},{$this -> limit}";
+    }
+
+    function clearFilter(){
+        $this -> column = '*';
+        $this -> wheres = [];
+        $this -> parameters = [];
+        $this -> limit = 0;
+        $this -> offset = 0;
+        $this -> sort = null;
+        $this -> sql = '';
+    }
+
+    public function parseWhere()
+    {
+        $s = '';
+        if ($this -> wheres) {
+
+            if (count($this -> wheres) == 1){
+                $where = $this -> wheres[0];
+
+
+                foreach ($where as $key => $v) {
+                    $s .= "`{$v[0]}` {$v[1]} ?";
+
+                    if(count($where) !== $key+1){
+                        $s .= " {$v[3]} ";
+                    }
+                    $this -> parameters[] = $v[2];
                 }
+            }else{
+                // TODO 多组where处理
             }
+
         }
-        $this -> where = join(' AND ', $s);
-        $this -> parameters = $a;
+        return $s;
+    }
+
+    function where($column, $operator = null, $value = null, $boolean = 'and', $group = 0)
+    {
+        if(is_array($column)){
+            foreach ($column as $item){
+                if (empty($item[3])){
+                    $this -> where($item[0], $item[1], $item[2]);
+                }else
+                {
+                    $this -> where($item[0], $item[1], $item[2], $item[3]);
+                }
+
+            }
+            return $this;
+        }
+
+
+        $this -> wheres[$group][] = [
+            $column,
+            $operator,
+            $value,
+            $boolean,
+        ];
+
         return $this;
     }
 
@@ -95,8 +137,7 @@ use PDO;
 
 class DB extends Sql
 {
-    public $pdo, $i = '`';
-    static $q = array();
+    public $pdo;
 
     function __construct($config)
     {
@@ -108,17 +149,28 @@ class DB extends Sql
     {
         $statement = $this->pdo->prepare($this -> sql);
         $statement->execute($this -> parameters);
+
+        $this -> clearFilter();
+
         return $statement;
     }
 
-    function get()
+    function select()
     {
-
-        return $this -> parseSql() -> query() -> fetchAll(PDO::FETCH_OBJ);
+        return $this -> parseSelect() -> query() -> fetchAll(PDO::FETCH_OBJ);
     }
-//    function first()
-//    {
-//        $this -> limit(1) -> parseSql() -> query() -> fetchAll();
-//    }
+    function delete()
+    {
+        return $this -> parseDelete() -> query() -> rowCount();
+    }
+    function insert($data)
+    {
+        $this -> parseInsert($data) -> query();
+        return $this -> pdo -> lastInsertId();
+    }
+    function update($data)
+    {
+        return $this -> parseUpdate($data) -> query() -> rowCount();
+    }
 
 }

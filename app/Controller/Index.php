@@ -3,6 +3,7 @@
 use App\Model\Navigations;
 use App\Model\User;
 use App\Model\UserGroup;
+use Sh\ORM;
 use Sh\View;
 
 /**
@@ -21,8 +22,20 @@ class Index
 
     public function test()
     {
-        var_dump(User::find(2));
-        die();
+
+        dump(ORM::$db -> table('navigations') -> insert([
+            'name' => '新链接',
+            'href' => 'http://www.baidu.com',
+            'icon' => '',
+        ]));
+
+        dump(ORM::$db -> table('navigations') -> where([['name','=','新链接']]) -> select());
+
+        dump(ORM::$db -> table('navigations') ->where([['name','=','新链接']]) -> update(['name' => '新链接_new']) );
+
+        dump(ORM::$db -> table('navigations') -> where([['name','=','新链接_new']]) -> delete());
+
+        dump(Navigations::get());
     }
 
     public function new_()
