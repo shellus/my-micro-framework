@@ -2,6 +2,7 @@
 
 use App\Model\Navigations;
 use App\Model\User;
+use App\Model\UserGroup;
 use Sh\View;
 
 /**
@@ -20,13 +21,7 @@ class Index
 
     public function test()
     {
-        $user = new User([
-            'name' => 'new user',
-            'nick' => '新用户1'
-        ]);
-        $user->save();
-
-        var_dump((string)$user);
+        var_dump(User::find(2));
         die();
     }
 

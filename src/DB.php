@@ -11,52 +11,56 @@ namespace Sh;
 
 class Sql
 {
-    function delete($table, $where = 0)
+
+    protected $column = '*';
+    protected $table = '';
+    protected $where = [];
+    protected $parameters = [];
+    protected $limit = 0;
+    protected $offset = 0;
+    protected $sort = null;
+    protected $sql = '';
+
+
+    function parseSql()
     {
-        $q = "DELETE FROM $table";
-        list($where, $p) = $this->where($where);
-        if ($where) $q .= " WHERE $where";
-        return ($s = $this->query($q, $p)) ? $s->rowCount() : 0;
+        $q = "SELECT {$this -> column} FROM `{$this ->table}`";
+
+        if ($this -> where) $q .= " WHERE {$this -> where}";
+        if ($this -> sort)  $q .= " ORDER BY {$this -> sort}";
+        if ($this -> limit) $q .= " LIMIT {$this -> offset},{$this -> limit}";
+        $this -> sql = $q;
+        return $this;
     }
 
-    /**
-     * @param int $column
-     * @param $table
-     * @param int $where
-     * @param int $limit
-     * @param int $offset
-     * @param int $sort
-     * @return array
-     */
-    function select($column = 0, $table, $where = 0, $limit = 0, $offset = 0, $sort = 0)
-    {
-        $column = $column ?: '*';
-        $q = "SELECT $column FROM \"$table\"";
-        list($where, $p) = $this->where($where);
-        if ($where) $q .= " WHERE $where";
-        return array($q . ($sort ? " ORDER BY $sort" : '') . ($limit ? " LIMIT $offset,$limit" : ''), $p);
-    }
+//
+//    function delete($table, $where = 0)
+//    {
+//        $q = "DELETE FROM $table";
+//        list($where, $p) = $this->where($where);
+//        if ($where) $q .= " WHERE $where";
+//        return ($s = $this->query($q, $p)) ? $s->rowCount() : 0;
+//    }
+//    function count($table, $where = 0)
+//    {
+//        list($q, $p) = $this->select('COUNT(*)', $table, $where);
+//        return $this->column($q, $p);
+//    }
+//
+//    function insert($table, $data)
+//    {
+//        $q = "INSERT INTO $table (\"" . implode('","', array_keys($data)) . '")VALUES(' . rtrim(str_repeat('?,', count($data)), ',') . ')';
+//        return $this->query($q, array_values($data)) ? $this->pdo->lastInsertId() : 0;
+//    }
+//
+//    function update($table, $data, $where = NULL)
+//    {
+//        $q = "UPDATE $table SET \"" . implode('"=?,"', array_keys($data)) . '"=? WHERE ';
+//        list($a, $b) = $this->where($where);
+//        return (($s = $this->query($q . $a, array_merge(array_values($data), $b))) ? $s->rowCount() : NULL);
+//    }
 
-    function count($table, $where = 0)
-    {
-        list($q, $p) = $this->select('COUNT(*)', $table, $where);
-        return $this->column($q, $p);
-    }
-
-    function insert($table, $data)
-    {
-        $q = "INSERT INTO $table (\"" . implode('","', array_keys($data)) . '")VALUES(' . rtrim(str_repeat('?,', count($data)), ',') . ')';
-        return $this->query($q, array_values($data)) ? $this->pdo->lastInsertId() : 0;
-    }
-
-    function update($table, $data, $where = NULL)
-    {
-        $q = "UPDATE $table SET \"" . implode('"=?,"', array_keys($data)) . '"=? WHERE ';
-        list($a, $b) = $this->where($where);
-        return (($s = $this->query($q . $a, array_merge(array_values($data), $b))) ? $s->rowCount() : NULL);
-    }
-
-    function where($where = 0)
+    function where($where = [])
     {
         $a = $s = array();
         if ($where) {
@@ -64,12 +68,26 @@ class Sql
                 if (is_int($c)) {
                     $s[] = $v;
                 } else {
-                    $s[] = "\"$c\"=?";
+                    $s[] = "`$c`=?";
                     $a[] = $v;
                 }
             }
         }
-        return array(join(' AND ', $s), $a);
+        $this -> where = join(' AND ', $s);
+        $this -> parameters = $a;
+        return $this;
+    }
+
+    public function limit($limit)
+    {
+        $this->limit = $limit;
+        return $this;
+    }
+
+    public function table($table)
+    {
+        $this->table = $table;
+        return $this;
     }
 }
 
@@ -82,36 +100,25 @@ class DB extends Sql
 
     function __construct($config)
     {
-
-
         extract($config);
         $this->pdo = new PDO($dsn, $user, $pass, $args);
     }
 
-    function column($query, $parameters = NULL, $key = 0)
+    function query()
     {
-        return ($statement = $this->query($query, $parameters)) ? $statement->fetchColumn($key) : 0;
-    }
-
-    function row($q, $parameters = NULL)
-    {
-        return ($statement = $this->query($q, $parameters)) ? $statement->fetch(PDO::FETCH_OBJ) : 0;
-    }
-
-    function fetch($q, $parameters = NULL)
-    {
-        return ($statement = $this->query($q, $parameters)) ? $statement->fetchAll(PDO::FETCH_OBJ) : 0;
-    }
-
-    /**
-     * @param $q
-     * @param null|array $parameters
-     * @return \PDOStatement
-     */
-    function query($q, $parameters = NULL)
-    {
-        $statement = $this->pdo->prepare(self::$q[] = str_replace('"', $this->i, $q));
-        $statement->execute($parameters);
+        $statement = $this->pdo->prepare($this -> sql);
+        $statement->execute($this -> parameters);
         return $statement;
     }
+
+    function get()
+    {
+
+        return $this -> parseSql() -> query() -> fetchAll(PDO::FETCH_OBJ);
+    }
+//    function first()
+//    {
+//        $this -> limit(1) -> parseSql() -> query() -> fetchAll();
+//    }
+
 }

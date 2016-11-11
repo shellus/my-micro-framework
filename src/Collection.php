@@ -20,6 +20,13 @@ class Collection implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonS
         $this->items = $items;
     }
 
+    public function first()
+    {
+        foreach ($this->items as $item) {
+            return $item;
+        }
+        return null;
+    }
     /**
      * Determine if an item exists at an offset.
      *

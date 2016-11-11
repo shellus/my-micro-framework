@@ -14,4 +14,12 @@ use Sh\ORM;
 class User extends ORM
 {
     static $table = 'users';
+    static $r = array(
+        'group' => UserGroup::class,
+    );
+
+
+    public function group(){
+        return $this -> belongsTo(UserGroup::class, 'group_id');
+    }
 }

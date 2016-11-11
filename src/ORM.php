@@ -7,6 +7,7 @@
  */
 
 namespace Sh;
+use Sh\Collection;
 
 /**
  * Class Stateful
@@ -20,8 +21,8 @@ class Stateful
     protected $change_data = [];
     /** @var array $data 原数据 */
     protected $data = [];
-    /** @var bool $load 是否已经变化 */
-    protected $load;
+    /** @var bool $load 是否已经从数据库加载数据 */
+    protected $load = false;
 
     function set($a)
     {
@@ -74,9 +75,10 @@ class Stateful
             return $a;
         }
     }
+
     public function __toString()
     {
-        return json_encode($this -> data);
+        return json_encode($this->data);
     }
 }
 
@@ -85,6 +87,7 @@ class ORM extends Stateful
 
     /** @var  $db DB */
     static $db, $table, $f, $relationship, $b, $master_key = 'id';
+    static $r = [];
 
     function __construct($data = null)
     {
@@ -92,11 +95,11 @@ class ORM extends Stateful
             if (is_numeric($data)) {
                 $this->data[$this::$master_key] = $data;
             } else {
-                if(empty($data[$this::$master_key])){
+                if (empty($data[$this::$master_key])) {
                     foreach ($data as $key => $item) {
                         $this->$key = $item;
                     }
-                }else{
+                } else {
                     $this->data = (array)$data;
                 }
 
@@ -104,6 +107,31 @@ class ORM extends Stateful
         }
     }
 
+    /**
+     * 一对多（例如文章查评论）
+     * @param $model ORM
+     * @param $foreign_key
+     * @param $local_key
+     * @return ORM
+     */
+    protected function hasMany($model, $foreign_key, $local_key = 'id')
+    {
+        $where = [
+            $foreign_key => $this -> $local_key
+        ];
+        return $model::get($where);
+    }
+    /**
+     * 一对多(反向，例如评论查文章)
+     * @param $model ORM
+     * @param $foreign_key
+     * @param $local_key
+     * @return ORM
+     */
+    protected function belongsTo($model, $foreign_key, $local_key = 'id')
+    {
+        return $model::get([$local_key => $this -> $foreign_key])[0];
+    }
 
     function save()
     {
@@ -119,10 +147,7 @@ class ORM extends Stateful
         return $this;
     }
 
-    static public function find($id)
-    {
-        return (new static([static::$master_key => $id]))->load();
-    }
+
 
     function load()
     {
@@ -143,24 +168,33 @@ class ORM extends Stateful
         return $this;
     }
 
-    static function get($where = 0, $limit = 0, $offset = 0, $sort = 0, $column = 0, $f = 'fetch')
+    static function get($where = [])
     {
-        list($q, $p) = static::$db->select($column, static::getTableName(), $where, $limit, $offset, $sort);
-        $result = static::$db->$f($q, $p);
-        if ($f{0} == 'f') {
-            foreach ($result as &$v) $v = new static((array)$v);
-        }
-        return new \Sh\Collection($result);
+        $result = static::$db -> table(static::getTableName()) -> where($where) ->get();
+        foreach ($result as &$v) $v = new static((array)$v);
+
+        return new Collection($result);
+    }
+
+    /**
+     * @param $id
+     * @return static
+     */
+    static public function find($id)
+    {
+        return static::get([static::$master_key => $id]) -> first();
     }
 
     static function count($where = 0)
     {
         return static::$db->count(static::getTableName(), $where);
     }
-    static function getTableName(){
 
-        $table = pathinfo(strtolower(array_pop(explode('\\', static::class))), PATHINFO_FILENAME);
+    static function getTableName()
+    {
 
-        return static::$table?:$table;
+        $table = pathinfo(strtolower(end(explode('\\', static::class))), PATHINFO_FILENAME);
+
+        return static::$table ?: $table;
     }
 }
