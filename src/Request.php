@@ -11,77 +11,57 @@ namespace Sh;
 
 class Request
 {
+    static public $requestUri;
+    static public $path;
+    static public $queryString = '';
+    static public $query = [];
+    static public $method;
 
-    public $queryString = [];
-
-
-    /**
-     * @var string
-     */
-    protected $requestUri;
-
-    /**
-     * @var string
-     */
-    protected $baseUrl;
-
-    /**
-     * @var string
-     */
-    protected $basePath;
-
-    /**
-     * @var string
-     */
-    protected $method;
-
+    static public $formats = [];
+    static public $raw_content;
+    static public $content = [];
 
 
     static public function createFromWEB()
     {
-        $uri = array_key_exists('REQUEST_URI', $_SERVER) ? $_SERVER['REQUEST_URI'] : '/';
+        static::$requestUri = array_key_exists('REQUEST_URI', $_SERVER) ? $_SERVER['REQUEST_URI'] : '/';
 
-        dd($uri);
-        $queryString = parse_url($uri, PHP_URL_QUERY);
-        $path = parse_url($uri, PHP_URL_PATH);
+        $queryString = parse_url(static::$requestUri, PHP_URL_QUERY);
+        parse_str($queryString, static::$query);
 
+        static::$path = parse_url(static::$requestUri, PHP_URL_PATH);
 
-        $instance = new static();
-        $instance->setBaseUrl($baseUrl);
-        $instance->setMethod(strtoupper($_SERVER['REQUEST_METHOD']));
-        $instance->setBasePath($path);
-        $instance->setQueryString($queryString);
-        return $instance;
-    }
-    /**
-     * @param string $baseUrl
-     */
-    public function setBaseUrl($baseUrl)
-    {
-        $this->baseUrl = $baseUrl;
-    }
+        $file = pathinfo(static::$path, PATHINFO_BASENAME);
 
-    /**
-     * @param string $method
-     */
-    public function setMethod($method)
-    {
-        $this->method = $method;
-    }
+        // 兼容/index.php的方式访问
+        if($file == "index.php"){
+            static::$path = str_replace($file, '', static::$path);
+        }
 
-    /**
-     * @param string $basePath
-     */
-    public function setBasePath($basePath)
-    {
-        $this->basePath = $basePath;
+        static::$method = strtoupper($_SERVER['REQUEST_METHOD']);
+
+        if (!empty($_SERVER['HTTP_CONTENT_TYPE'])){
+            static::$raw_content = file_get_contents('php://input');
+
+            if (0 === strpos($_SERVER['HTTP_CONTENT_TYPE'], 'application/x-www-form-urlencoded'))
+            {
+                parse_str(static::$raw_content, static::$content);
+            }elseif (0 === strpos($_SERVER['HTTP_CONTENT_TYPE'], 'application/json'))
+            {
+                static::$content = json_decode(static::$raw_content, true)?:[];
+            }
+        }
     }
 
-    /**
-     * @param array $queryString
-     */
-    public function setQueryString($queryString)
+    static function get($key = null, $default = null)
     {
-        $this->queryString = $queryString;
+        if($key === null)return static::$query;
+        if(empty(static::$query[$key]))return $default;
+        return static::$query[$key];
+    }
+    static function post($key = null, $default = null){
+        if($key === null)return static::$content;
+        if(empty(static::$content[$key]))return $default;
+        return static::$content[$key];
     }
 }
