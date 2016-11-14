@@ -13,6 +13,9 @@ use Sh\ORM;
 
 class User extends ORM
 {
+    public function verify(){
+
+    }
     static $table = 'users';
     static $r = array(
         'group' => UserGroup::class,

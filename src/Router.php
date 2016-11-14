@@ -33,11 +33,16 @@ class Router
         foreach (self::$routers as $route) {
             if (preg_match($route['pattern'], Request::$path) !== 0 && $route['method'] === Request::$method) {
                 list($c, $a) = explode('@', $route['action']);
-                $html = (new $c)->$a();
+
+                try{
+                    $html = (new $c)->$a();
+                }catch (\Exception $e){
+                    return view('errors/500',['e' => $e]);
+                }
                 return $html;
             }
         }
-        return view('404');
+        return view('errors/404');
     }
 }
 

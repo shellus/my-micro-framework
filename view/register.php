@@ -8,7 +8,7 @@
         <div class="panel panel-default">
             <div class="panel-heading">注册</div>
             <div class="panel-body">
-                <form class="form-horizontal" role="form" method="POST" action="">
+                <form id="form-login" class="form-horizontal" role="form" method="POST" action="">
 
                     <div class="form-group">
                         <label for="name" class="col-md-4 control-label">登录账号</label>

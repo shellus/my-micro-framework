@@ -9,12 +9,28 @@
 namespace App\Controller;
 
 
-class Auth
+use App\Model\User;
+use Sh\Controller;
+use Sh\Request;
+
+class Auth extends Controller
 {
-    public function getRegister(){
+    public function getRegister()
+    {
         return view('register');
     }
-    public function postRegister(){
 
+    public function postRegister()
+    {
+
+        $data = Request::only(['email', 'name', 'password']);
+        $user = new User($data);
+
+        try {
+            $user->save();
+        } catch (\Exception $e) {
+            return $this->fail('注册失败');
+        }
+        return $this->success('注册成功');
     }
 }

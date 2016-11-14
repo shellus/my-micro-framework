@@ -64,4 +64,9 @@ class Request
         if(empty(static::$content[$key]))return $default;
         return static::$content[$key];
     }
+    public static function only($keys)
+    {
+        $m = strtolower(static::$method);
+        return array_intersect_key(static::$m(), array_flip((array) $keys));
+    }
 }

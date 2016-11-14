@@ -7,6 +7,7 @@
  */
 
 namespace Sh;
+
 use Sh\Collection;
 
 /**
@@ -84,6 +85,16 @@ class Stateful
 
 class ORM extends Stateful
 {
+    /**
+     * 检查、补全、过滤
+     * @param $data
+     * @return array
+     */
+    public function check($data)
+    {
+        // TODO 还没想好
+        return $data;
+    }
 
     /** @var  $db DB */
     static $db, $table, $f, $relationship, $b, $master_key = 'id';
@@ -117,10 +128,11 @@ class ORM extends Stateful
     protected function hasMany($model, $foreign_key, $local_key = 'id')
     {
         $where = [
-            $foreign_key => $this -> $local_key
+            $foreign_key => $this->$local_key
         ];
         return $model::get($where);
     }
+
     /**
      * 一对多(反向，例如评论查文章)
      * @param $model ORM
@@ -130,7 +142,7 @@ class ORM extends Stateful
      */
     protected function belongsTo($model, $foreign_key, $local_key = 'id')
     {
-        return $model::get([$local_key => $this -> $foreign_key])[0];
+        return $model::get([$local_key => $this->$foreign_key])[0];
     }
 
     function save()
@@ -139,14 +151,13 @@ class ORM extends Stateful
             $k = $this::$master_key;
 
             if ($this->load = empty($this->data[$k])) {
-                $this->$k = $this::$db->insert($this::getTableName(), $data);
+                $this->$k = $this::$db->table(static::getTableName())->insert($data);
             } else {
-                $this::$db->update($this::getTableName(), $data, array($k => $this->$k));
+                $this::$db->table(static::getTableName())->where($k, '=', $this->$k)->update($data);
             }
         }
         return $this;
     }
-
 
 
     function load()
@@ -170,7 +181,7 @@ class ORM extends Stateful
 
     static function get($where = [])
     {
-        $result = static::$db -> table(static::getTableName()) -> where($where) ->select();
+        $result = static::$db->table(static::getTableName())->where($where)->select();
         foreach ($result as &$v) $v = new static((array)$v);
 
         return new Collection($result);
@@ -182,12 +193,12 @@ class ORM extends Stateful
      */
     static public function find($id)
     {
-        return static::get([[static::$master_key, '=', $id]]) -> first();
+        return static::get([[static::$master_key, '=', $id]])->first();
     }
 
-    static function count($where = 0)
+    static function count($where = [])
     {
-        return static::$db->count(static::getTableName(), $where);
+        return static::$db->table(static::getTableName())->where($where)->count();
     }
 
     static function getTableName()

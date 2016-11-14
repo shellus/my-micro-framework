@@ -69,6 +69,7 @@ class View
         ob_start();
         extract($this->vars);
         extract(static::$globalVars);
+
         require static::$path . $this->view . '.php';
 
         if (!empty($layout)) {
