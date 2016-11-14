@@ -8,7 +8,7 @@
 
 require __DIR__ . '/../app/bootstrap.php';
 
-$response = \Sh\Router::d($path);
+$response = \Sh\Router::dispatch();
 
 if (is_array($response) || $response instanceof \Sh\Collection){
     header('Content-Type: application/json; charset=utf-8');

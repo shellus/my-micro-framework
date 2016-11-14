@@ -28,10 +28,10 @@ class Router
         ];
     }
 
-    static public function d()
+    static public function dispatch()
     {
         foreach (self::$routers as $route) {
-            if (preg_match($route['pattern'], $path) !== 0 && $route['method'] === ) {
+            if (preg_match($route['pattern'], Request::$path) !== 0 && $route['method'] === Request::$method) {
                 list($c, $a) = explode('@', $route['action']);
                 $html = (new $c)->$a();
                 return $html;
