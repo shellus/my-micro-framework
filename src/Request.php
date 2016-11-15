@@ -67,6 +67,6 @@ class Request
     public static function only($keys)
     {
         $m = strtolower(static::$method);
-        return array_intersect_key(static::$m(), array_flip((array) $keys));
+        return array_intersect_key(call_user_func('Request::' . $m), array_flip((array) $keys));
     }
 }
