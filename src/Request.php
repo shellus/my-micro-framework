@@ -34,39 +34,57 @@ class Request
         $file = pathinfo(static::$path, PATHINFO_BASENAME);
 
         // 兼容/index.php的方式访问
-        if($file == "index.php"){
+        if ($file == "index.php") {
             static::$path = str_replace($file, '', static::$path);
         }
 
         static::$method = strtoupper($_SERVER['REQUEST_METHOD']);
 
-        if (!empty($_SERVER['HTTP_CONTENT_TYPE'])){
+        if (!empty($_SERVER['HTTP_CONTENT_TYPE'])) {
             static::$raw_content = file_get_contents('php://input');
 
-            if (0 === strpos($_SERVER['HTTP_CONTENT_TYPE'], 'application/x-www-form-urlencoded'))
-            {
+            if (0 === strpos($_SERVER['HTTP_CONTENT_TYPE'], 'application/x-www-form-urlencoded')) {
+
+
                 parse_str(static::$raw_content, static::$content);
-            }elseif (0 === strpos($_SERVER['HTTP_CONTENT_TYPE'], 'application/json'))
-            {
-                static::$content = json_decode(static::$raw_content, true)?:[];
+            } elseif (0 === strpos($_SERVER['HTTP_CONTENT_TYPE'], 'application/json')) {
+                static::$content = json_decode(static::$raw_content, true) ?: [];
             }
         }
     }
 
+    static function all()
+    {
+        return static::get();
+    }
+
     static function get($key = null, $default = null)
     {
-        if($key === null)return static::$query;
-        if(empty(static::$query[$key]))return $default;
+        $data = static::$method == "GET" ? static::$query : static::$content;
+        if ($key === null) return $data;
+        if (!key_exists($key, $data)) return $default;
+        return $data[$key];
+    }
+
+    static function query($key = null, $default = null)
+    {
+        if ($key === null) return static::$query;
+        if (empty(static::$query[$key])) return $default;
         return static::$query[$key];
     }
-    static function post($key = null, $default = null){
-        if($key === null)return static::$content;
-        if(empty(static::$content[$key]))return $default;
-        return static::$content[$key];
-    }
-    public static function only($keys)
+
+    public static function only($keys, $required = true)
     {
-        $m = strtolower(static::$method);
-        return array_intersect_key(call_user_func('Request::' . $m), array_flip((array) $keys));
+        $data = static::$method == "GET" ? static::$query : static::$content;
+        $result = array_flip($keys);
+        foreach ($result as $key => $value)
+        {
+            if(!key_exists($key, $data) && $required){
+                throw new \InvalidArgumentException("InvalidArgument: {$key}");
+            }
+            $result[$key] = $data[$key];
+        }
+
+        return $result;
     }
 }
