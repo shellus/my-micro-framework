@@ -30,7 +30,7 @@ class Stateful
 
     function __set($k, $v)
     {
-        if (!array_key_exists($k, $this->data) OR $this->data[$k] !== $v) {
+        if (!key_exists($k, $this->data) OR $this->data[$k] !== $v) {
             $this->data[$k] = $v;
             $this->change_data[$k] = $k;
         }
@@ -38,12 +38,12 @@ class Stateful
 
     function __get($k)
     {
-        return array_key_exists($k, $this->data) ? $this->data[$k] : NULL;
+        return key_exists($k, $this->data) ? $this->data[$k] : NULL;
     }
 
     function __isset($k)
     {
-        return array_key_exists($k, $this->data);
+        return key_exists($k, $this->data);
     }
 
     function __unset($k)
@@ -137,7 +137,7 @@ class ORM extends Stateful
         if ($data = $this->changes()) {
             $k = $this::$master_key;
 
-            if ($this->load = key_exists($k, $this->data)) {
+            if ($this->load = !key_exists($k, $this->data)) {
                 $this->$k = $this::$db->table(static::getTableName())->insert($data);
             } else {
                 $this::$db->table(static::getTableName())->where($k, '=', $this->$k)->update($data);
@@ -154,7 +154,7 @@ class ORM extends Stateful
             /** @var string $k */
             $k = $this::$master_key;
 
-            if (key_exists($k, $this->data)) {
+            if (!key_exists($k, $this->data)) {
                 throw new \Exception('没有主键，不能加载数据');
             }
 
