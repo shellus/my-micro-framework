@@ -8,6 +8,8 @@
 
 require __DIR__ . '/../app/bootstrap.php';
 
+\Sh\Session::start();
+
 $response = \Sh\Router::dispatch();
 
 if (is_array($response) || $response instanceof \Sh\Collection){
@@ -16,3 +18,5 @@ if (is_array($response) || $response instanceof \Sh\Collection){
 
 
 echo $response;
+
+\Sh\Session::save();

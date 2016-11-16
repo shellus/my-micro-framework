@@ -114,10 +114,7 @@ class ORM extends Stateful
      */
     protected function hasMany($model, $foreign_key, $local_key = 'id')
     {
-        $where = [
-            $foreign_key => $this->$local_key
-        ];
-        return $model::where($where) -> get();
+        return $model::where($foreign_key, '=', $this->$local_key) -> get();
     }
 
     /**
@@ -129,7 +126,7 @@ class ORM extends Stateful
      */
     protected function belongsTo($model, $foreign_key, $local_key = 'id')
     {
-        return $model::where([$local_key => $this->$foreign_key]) -> get()[0];
+        return $model::where($local_key, '=', $this->$foreign_key) -> get()[0];
     }
 
     function save()
@@ -158,8 +155,7 @@ class ORM extends Stateful
                 throw new \Exception('没有主键，不能加载数据');
             }
 
-
-            if ($result = static::where([$k => $this->data[$k]])->get()) {
+            if ($result = static::where($k, '=', $this->data[$k])->get()) {
                 $this->load = true;
                 $this->change_data = [];
                 $this->data = $result[0]->values();
@@ -187,12 +183,12 @@ class ORM extends Stateful
      */
     static public function find($id)
     {
-        return static::where([static::$master_key, '=', $id]) -> get()->first();
+        return static::where(static::$master_key, '=', $id) -> get()->first();
     }
 
-    static function count($where = [])
+    static function count()
     {
-        return static::$db->table(static::getTableName())->where($where)->count();
+        return static::$db->table(static::getTableName())->count();
     }
 
     static function getTableName()

@@ -5,9 +5,13 @@
  * Date: 2016/11/9
  * Time: 18:21
  */
+namespace App\Controller;
 
-\Sh\Router::get('/^\/$/', \App\Controller\Index::class . '@index');
+use Sh\Router;
 
-\Sh\Router::get('/^\/register$/', \App\Controller\Auth::class . '@getRegister');
+Router::get('/^\/$/', Index::class . '@index');
 
-\Sh\Router::post('/^\/register$/', \App\Controller\Auth::class . '@postRegister');
+Router::get('/^\/register$/', Auth::class . '@getRegister');
+Router::get('/^\/login$/', Auth::class . '@getLogin');
+Router::post('/^\/register$/', Auth::class . '@postRegister');
+Router::post('/^\/login$/', Auth::class . '@postLogin');

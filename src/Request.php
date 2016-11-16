@@ -37,8 +37,8 @@ class Request
         if ($file == "index.php") {
             static::$path = str_replace($file, '', static::$path);
         }
-
-        static::$method = strtoupper($_SERVER['REQUEST_METHOD']);
+        static::$method = array_key_exists('REQUEST_METHOD', $_SERVER) ? $_SERVER['REQUEST_METHOD'] : 'GET';
+        static::$method = strtoupper(static::$method);
 
         if (!empty($_SERVER['HTTP_CONTENT_TYPE'])) {
             static::$raw_content = file_get_contents('php://input');
@@ -62,7 +62,7 @@ class Request
     {
         $data = static::$method == "GET" ? static::$query : static::$content;
         if ($key === null) return $data;
-        if (!key_exists($key, $data)) return $default;
+        if (!key_exists($key, $data) && $default === null) throw new \InvalidArgumentException("InvalidArgument: {$key}");
         return $data[$key];
     }
 

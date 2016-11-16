@@ -4,6 +4,7 @@ use App\Model\Navigations;
 use App\Model\User;
 use App\Model\UserGroup;
 use Sh\ORM;
+use Sh\Session;
 use Sh\View;
 
 /**
@@ -16,7 +17,7 @@ class Index
 {
     public function index()
     {
-        return View::load('index') -> set('name', '123') -> render();
+        return View::load('index') -> set('name', User::find(Session::get('user_id')) -> name) -> render();
     }
 
     public function test()
