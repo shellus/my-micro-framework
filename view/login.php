@@ -2,7 +2,7 @@
 <div class="row">
     <div class="col-md-8 col-md-offset-2">
         <div class="panel panel-default">
-            <div class="panel-heading"><?=$title = "注册"?></div>
+            <div class="panel-heading"><?=$title = "登录"?></div>
             <div class="panel-body">
                 <form id="form-login" class="form-horizontal" role="form" method="POST" action="">
 

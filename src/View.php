@@ -72,8 +72,11 @@ class View
 
         require static::$path . $this->view . '.php';
 
+        $vars = array_diff(get_defined_vars(), array(array()));
+
         if (!empty($layout)) {
-            return static::load($layout)->vars($this -> vars) -> set('body', ob_get_clean())->render();
+            unset($vars['layout']);
+            return static::load($layout)->vars($vars) -> set('body', ob_get_clean())->render();
         }
         return ob_get_clean();
     }
