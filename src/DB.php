@@ -30,6 +30,12 @@ class Sql
         $this -> parseAppendFilter();
         return $this;
     }
+    function parseCount()
+    {
+        $this -> sql = "SELECT COUNT(*) FROM `{$this ->table}`";
+        $this -> parseAppendFilter();
+        return $this;
+    }
     function parseDelete()
     {
         $this -> sql = "DELETE FROM {$this -> table}";
@@ -79,12 +85,14 @@ class Sql
 
 
                 foreach ($where as $key => $v) {
-                    $s .= "`{$v[0]}` {$v[1]} ?";
 
-                    if(count($where) !== $key+1){
+                    if($key !== 0){
                         $s .= " {$v[3]} ";
                     }
+                    $s .= "`{$v[0]}` {$v[1]} ?";
+
                     $this -> parameters[] = $v[2];
+
                 }
             }else{
                 // TODO 多组where处理
@@ -94,7 +102,7 @@ class Sql
         return $s;
     }
 
-    function where($column, $operator = null, $value = null, $boolean = 'and', $group = 0)
+    function where($column, $operator = null, $value = null, $boolean = 'AND', $group = 0)
     {
         if(is_array($column)){
             foreach ($column as $item){
@@ -164,6 +172,11 @@ class DB extends Sql
     function select()
     {
         return $this -> parseSelect() -> query() -> fetchAll(PDO::FETCH_ASSOC);
+    }
+    function count()
+    {
+        $data = $this -> parseCount() -> query() -> fetchAll(PDO::FETCH_ASSOC);
+        return $data ? (int)$data[0]['COUNT(*)'] : 0;
     }
     function delete()
     {

@@ -102,19 +102,8 @@ class ORM extends Stateful
 
     function __construct($data = null)
     {
-        if ($data) {
-            if (is_numeric($data)) {
-                $this->data[$this::$master_key] = $data;
-            } else {
-                if (empty($data[$this::$master_key])) {
-                    foreach ($data as $key => $item) {
-                        $this->$key = $item;
-                    }
-                } else {
-                    $this->data = (array)$data;
-                }
-
-            }
+        foreach ($data as $key => $item) {
+            $this->$key = $item;
         }
     }
 
@@ -179,9 +168,14 @@ class ORM extends Stateful
         return $this;
     }
 
-    static function get($where = [])
+    public static function where($column, $operator = null, $value = null, $boolean = 'AND', $group = 0){
+        static::$db->where($column, $operator, $value, $boolean, $group);
+        return new static();
+    }
+
+    static function get()
     {
-        $result = static::$db->table(static::getTableName())->where($where)->select();
+        $result = static::$db->table(static::getTableName())->select();
         foreach ($result as &$v) $v = new static((array)$v);
 
         return new Collection($result);
