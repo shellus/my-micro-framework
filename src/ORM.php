@@ -8,8 +8,6 @@
 
 namespace Sh;
 
-use Sh\Collection;
-
 /**
  * Class Stateful
  * @package Sh
@@ -70,11 +68,11 @@ class Stateful
 
     function changes()
     {
+        $a = array();
         if ($this->change_data) {
-            $a = array();
             foreach ($this->change_data as $k) $a[$k] = $this->data[$k];
-            return $a;
         }
+        return $a;
     }
 
     public function __toString()
@@ -119,7 +117,7 @@ class ORM extends Stateful
         $where = [
             $foreign_key => $this->$local_key
         ];
-        return $model::get($where);
+        return $model::where($where) -> get();
     }
 
     /**
@@ -131,7 +129,7 @@ class ORM extends Stateful
      */
     protected function belongsTo($model, $foreign_key, $local_key = 'id')
     {
-        return $model::get([$local_key => $this->$foreign_key])[0];
+        return $model::where([$local_key => $this->$foreign_key]) -> get()[0];
     }
 
     function save()
@@ -139,7 +137,7 @@ class ORM extends Stateful
         if ($data = $this->changes()) {
             $k = $this::$master_key;
 
-            if ($this->load = empty($this->data[$k])) {
+            if ($this->load = key_exists($k, $this->data)) {
                 $this->$k = $this::$db->table(static::getTableName())->insert($data);
             } else {
                 $this::$db->table(static::getTableName())->where($k, '=', $this->$k)->update($data);
@@ -153,13 +151,15 @@ class ORM extends Stateful
     {
         // 数据已经载入
         if (!$this->load) {
+            /** @var string $k */
             $k = $this::$master_key;
 
-            if (empty($this->data[$k])) {
+            if (key_exists($k, $this->data)) {
                 throw new \Exception('没有主键，不能加载数据');
             }
 
-            if ($result = $this->get(array($k => $this->data[$k]))) {
+
+            if ($result = static::where([$k => $this->data[$k]])->get()) {
                 $this->load = true;
                 $this->change_data = [];
                 $this->data = $result[0]->values();
@@ -187,7 +187,7 @@ class ORM extends Stateful
      */
     static public function find($id)
     {
-        return static::get([[static::$master_key, '=', $id]])->first();
+        return static::where([static::$master_key, '=', $id]) -> get()->first();
     }
 
     static function count($where = [])
@@ -197,9 +197,8 @@ class ORM extends Stateful
 
     static function getTableName()
     {
-
-        $table = pathinfo(strtolower(end(explode('\\', static::class))), PATHINFO_FILENAME);
-
+        $arr = explode('\\', static::class);
+        $table = strtolower(end($arr));
         return static::$table ?: $table;
     }
 }
