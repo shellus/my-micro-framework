@@ -168,6 +168,10 @@ class ORM extends Stateful
         static::$db->where($column, $operator, $value, $boolean, $group);
         return new static();
     }
+    static function limit($limit){
+        static::$db->table(static::getTableName())->limit($limit);
+        return new static();
+    }
 
     static function get()
     {

@@ -1,7 +1,7 @@
 <?php $layout = 'errors/layout';?>
-<?php $this -> set('title', '404 Not Found');?>
+<?php $title = '404 Not Found';?>
 
-你可以试试回到首页
+你可以试试 <a href="/">回到首页</a>
 
 <hr>
 

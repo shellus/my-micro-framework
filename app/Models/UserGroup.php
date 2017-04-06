@@ -6,7 +6,7 @@
  * Time: 9:54
  */
 
-namespace App\Model;
+namespace App\Models;
 
 
 use Sh\ORM;

@@ -6,12 +6,12 @@
  * Time: 16:39
  */
 
-namespace App\Model;
+namespace App\Models;
 
 
 use Sh\ORM;
 
-class Navigations extends ORM
+class Article extends ORM
 {
-
+    static $table = 'articles';
 }

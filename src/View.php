@@ -12,6 +12,7 @@ namespace Sh;
 class View
 {
     static protected $path;
+    static protected $ext = '.php';
     static $globalVars = [];
     protected $vars = [];
     protected $view = '';
@@ -58,9 +59,8 @@ class View
         return (new static())->view($view);
     }
 
-    static public function load_config($path)
+    static public function setBasePath($path)
     {
-//        static::$path = \Sh\Config::get('app.view_path');
         static::$path = $path;
     }
 
@@ -70,7 +70,7 @@ class View
         extract($this->vars);
         extract(static::$globalVars);
 
-        require static::$path . $this->view . '.php';
+        require static::$path . $this->view . self::$ext;
 
         $vars = array_diff(get_defined_vars(), array(array()));
 

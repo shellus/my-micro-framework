@@ -5,7 +5,7 @@
  * Date: 2016/11/9
  * Time: 18:21
  */
-namespace App\Controller;
+namespace App\Controllers;
 
 use Sh\Router;
 

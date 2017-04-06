@@ -1,5 +1,5 @@
 <?php $layout = 'errors/layout'; ?>
-<?php $this->set('title', '500 Server Error'); ?>
+<?php $title = '500 Server Error'; ?>
 <?php /** @var $e Exception */ ?>
 异常：
 <p>

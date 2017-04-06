@@ -6,7 +6,7 @@
  * Time: 18:02
  */
 
-namespace App\Controller;
+namespace App\Controllers;
 
 
 use App\Model\User;

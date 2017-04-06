@@ -9,19 +9,12 @@
 
 require __DIR__ . '/../vendor/autoload.php';
 
-define('_APP_ROOT_PATH_', __DIR__ . DIRECTORY_SEPARATOR . '..');
+define('_BASE_PATH_', dirname(__DIR__));
+define('_APP_PATH_', dirname(__DIR__) . DIRECTORY_SEPARATOR . 'app');
 
-\Sh\Config::load_config(__DIR__ . '/../config');
+\Sh\Config::load_config(_BASE_PATH_ . '/config');
 
-\Sh\ORM::$db = new \Sh\DB(config('app.database'));
-
-\Sh\View::load_config(__DIR__ . '/../view/');
-
-\Sh\View::globalVar('navigations', \App\Model\Navigations::get());
-
-require __DIR__ . '/../routes.php';
-
-\Sh\Request::createFromWEB();
+\Sh\View::setBasePath(\Sh\Config::get('app.view_path'));
 
 function error_handler($error_level, $error_message, $file, $line)
 {
@@ -64,7 +57,7 @@ function fatalError()
             case E_COMPILE_ERROR:
             case E_USER_ERROR:
                 ob_end_clean();
-                echo view('errors/500', ['e' => new Exception($e['message'], 0)]);
+                echo view('errors/500', ['e' => new Exception($e['file']. '(' .$e['line'] . ')<br>' .$e['message'])]);
                 die();
                 break;
         }
@@ -81,3 +74,14 @@ function appException($e)
 }
 
 set_exception_handler('appException');
+
+
+\Sh\ORM::$db = new \Sh\DB(config('app.database'));
+
+require _BASE_PATH_ . '/routes.php';
+
+\Sh\Request::createFromWEB();
+
+foreach (\Sh\Config::get('app.providers') as $provider){
+    (new $provider)->boot();
+}
