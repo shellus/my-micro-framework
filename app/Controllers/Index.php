@@ -1,6 +1,7 @@
 <?php namespace App\Controllers;
 
 use App\Models\Article;
+use App\Models\Item;
 use App\Models\Navigations;
 use App\Models\User;
 use Sh\DB;
@@ -18,11 +19,12 @@ class Index
 {
     public function index()
     {
+        $p = Item::paginate();
         $vars = [
-            'articles' => Article::limit(10)->get(),
-            'name' => User::find(Session::get('user_id')) -> name,
+            'models' => $p->items(),
+            'links' => $p->links(),
         ];
-        return View::load('index') -> vars($vars) -> render();
+        return View::load('item') -> vars($vars) -> render();
     }
 
     public function test()

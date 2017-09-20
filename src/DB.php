@@ -133,7 +133,11 @@ class Sql
         $this->limit = $limit;
         return $this;
     }
-
+    public function offset($offset)
+    {
+        $this->offset = $offset;
+        return $this;
+    }
     public function table($table)
     {
         $this->table = $table;

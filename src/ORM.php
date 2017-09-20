@@ -114,7 +114,7 @@ class ORM extends Stateful
      */
     protected function hasMany($model, $foreign_key, $local_key = 'id')
     {
-        return $model::where($foreign_key, '=', $this->$local_key) -> get();
+        return $model::where($foreign_key, '=', $this->$local_key)->get();
     }
 
     /**
@@ -126,7 +126,7 @@ class ORM extends Stateful
      */
     protected function belongsTo($model, $foreign_key, $local_key = 'id')
     {
-        return $model::where($local_key, '=', $this->$foreign_key) -> get()[0];
+        return $model::where($local_key, '=', $this->$foreign_key)->get()[0];
     }
 
     function save()
@@ -164,13 +164,32 @@ class ORM extends Stateful
         return $this;
     }
 
-    public static function where($column, $operator = null, $value = null, $boolean = 'AND', $group = 0){
+    public static function where($column, $operator = null, $value = null, $boolean = 'AND', $group = 0)
+    {
         static::$db->where($column, $operator, $value, $boolean, $group);
         return new static();
     }
-    static function limit($limit){
+
+    static function limit($limit)
+    {
         static::$db->table(static::getTableName())->limit($limit);
         return new static();
+    }
+
+    static function offset($limit)
+    {
+        static::$db->table(static::getTableName())->offset($limit);
+        return new static();
+    }
+
+    static function take($limit)
+    {
+        return static::limit($limit);
+    }
+
+    static function skip($limit)
+    {
+        return static::offset($limit);
     }
 
     static function get()
@@ -181,13 +200,28 @@ class ORM extends Stateful
         return new Collection($result);
     }
 
+    /** todo 这个方法应该实现在count()函数同一层。而不是ORM层 */
+    static function paginate($perPage = null, $columns = ['*'], $pageName = 'page', $page = null)
+    {
+        $page = $page ?: isset($_GET[$pageName]) ? $_GET[$pageName] : 1;
+        $perPage = $perPage ?: 20;
+
+        $query = static::take($perPage)->skip(($page - 1) * $perPage);
+
+        $data = $query->get();
+
+        $count = $query->count();
+
+        return new Page($data, $page, $perPage, $count);
+    }
+
     /**
      * @param $id
      * @return static
      */
     static public function find($id)
     {
-        return static::where(static::$master_key, '=', $id) -> get()->first();
+        return static::where(static::$master_key, '=', $id)->get()->first();
     }
 
     static function count()
@@ -200,5 +234,45 @@ class ORM extends Stateful
         $arr = explode('\\', static::class);
         $table = strtolower(end($arr));
         return static::$table ?: $table;
+    }
+}
+
+class Page
+{
+    protected $data;
+    protected $page;
+    protected $perPage;
+    protected $count;
+
+    public function __construct($data, $page, $perPage, $count)
+    {
+        $this->data = $data;
+        $this->page = $page;
+        $this->perPage = $perPage;
+        $this->count = $count;
+    }
+
+    public function hasPages(){
+        return true;
+    }
+    public function onFirstPage(){
+        return true;
+    }
+    public function hasMorePages(){
+        return true;
+    }
+    public function currentPage(){
+        return $this->page;
+    }
+    public function links()
+    {
+        $elements=[];
+        for($i=1;$i<10;$i++){
+            $elements[$i]="?page=$i";
+        }
+        return view("pagination-advanced",['paginator'=>$this, 'elements'=>[$elements]]);
+    }
+    public function items(){
+        return $this->data;
     }
 }
