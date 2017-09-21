@@ -63,17 +63,17 @@
             <?php foreach ($models as $model):?>
 
 
-            <div class="ui card">
+            <div class="ui card" data-id="<?=$model->id?>">
                 <div class="image">
                     <img src="<?=$model->pic_url?>">
                 </div>
                 <div class="content">
-                    <a class="header">￥<?=$model->coupon_price?>
+                    <a class="header" href="<?=$model->click_url?>">￥<?=$model->coupon_price?>
                         <small style="text-decoration: line-through;" class="sub header">￥<?=$model->price?></small>
                     </a>
 
                     <div class="meta">
-                        <span class="date"><?=$model->click_url?></span>
+                        <span class="date"></span>
                     </div>
                     <div class="description">
                         <?=$model->title?>
