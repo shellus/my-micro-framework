@@ -176,6 +176,12 @@ class ORM extends Stateful
         return new static();
     }
 
+    static function orderBy($limit)
+    {
+        static::$db->table(static::getTableName())->orderBy($limit);
+        return new static();
+    }
+
     static function offset($limit)
     {
         static::$db->table(static::getTableName())->offset($limit);
@@ -192,27 +198,17 @@ class ORM extends Stateful
         return static::offset($limit);
     }
 
+    static function paginate($perPage = null, $columns = ['*'], $pageName = 'page', $page = null)
+    {
+        return static::$db->table(static::getTableName())->paginate($perPage, $columns, $pageName, $page);
+    }
+
     static function get()
     {
         $result = static::$db->table(static::getTableName())->select();
         foreach ($result as &$v) $v = new static((array)$v);
 
         return new Collection($result);
-    }
-
-    /** todo 这个方法应该实现在count()函数同一层。而不是ORM层 */
-    static function paginate($perPage = null, $columns = ['*'], $pageName = 'page', $page = null)
-    {
-        $page = $page ?: isset($_GET[$pageName]) ? $_GET[$pageName] : 1;
-        $perPage = $perPage ?: 20;
-
-        $query = static::take($perPage)->skip(($page - 1) * $perPage);
-
-        $data = $query->get();
-
-        $count = $query->count();
-
-        return new Page($data, $page, $perPage, $count);
     }
 
     /**
@@ -234,45 +230,5 @@ class ORM extends Stateful
         $arr = explode('\\', static::class);
         $table = strtolower(end($arr));
         return static::$table ?: $table;
-    }
-}
-
-class Page
-{
-    protected $data;
-    protected $page;
-    protected $perPage;
-    protected $count;
-
-    public function __construct($data, $page, $perPage, $count)
-    {
-        $this->data = $data;
-        $this->page = $page;
-        $this->perPage = $perPage;
-        $this->count = $count;
-    }
-
-    public function hasPages(){
-        return true;
-    }
-    public function onFirstPage(){
-        return true;
-    }
-    public function hasMorePages(){
-        return true;
-    }
-    public function currentPage(){
-        return $this->page;
-    }
-    public function links()
-    {
-        $elements=[];
-        for($i=1;$i<10;$i++){
-            $elements[$i]="?page=$i";
-        }
-        return view("pagination-advanced",['paginator'=>$this, 'elements'=>[$elements]]);
-    }
-    public function items(){
-        return $this->data;
     }
 }

@@ -19,23 +19,23 @@ class Index
 {
     public function index()
     {
-        $p = Item::paginate();
+        $p = Item::orderBy("id DESC")->paginate();
         $vars = [
             'models' => $p->items(),
             'links' => $p->links(),
         ];
-        return View::load('item') -> vars($vars) -> render();
+        return View::load('item')->vars($vars)->render();
     }
 
     public function test()
     {
 
-        dump(ORM::$db -> table('navigations') -> insert([
+        dump(ORM::$db->table('navigations')->insert([
             'name' => '新链接',
             'href' => 'http://www.baidu.com',
             'icon' => '',
         ]));
-        dump(ORM::$db -> table('navigations') -> column('id') -> where([['name','=','新链接']]) -> select());
+        dump(ORM::$db->table('navigations')->column('id')->where([['name', '=', '新链接']])->select());
 
     }
 
